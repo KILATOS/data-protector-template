@@ -24,6 +24,11 @@ repositories {
 extra["springCloudVersion"] = "2023.0.0"
 
 dependencies {
+
+    implementation("org.hibernate.validator:hibernate-validator:8.0.0.Final")
+    implementation("org.springframework.boot:spring-boot-starter-security:3.2.3")
+    implementation("com.h2database:h2:2.2.224")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa:3.2.3")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
     compileOnly("org.projectlombok:lombok")
