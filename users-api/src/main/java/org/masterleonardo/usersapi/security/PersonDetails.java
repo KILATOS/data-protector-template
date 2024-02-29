@@ -1,5 +1,8 @@
 package org.masterleonardo.usersapi.security;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import org.masterleonardo.usersapi.models.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -9,18 +12,14 @@ import java.io.Serial;
 import java.util.Collection;
 import java.util.Collections;
 
+@AllArgsConstructor
+@Getter
+@Setter
 public class PersonDetails implements UserDetails {
-
     @Serial
-    private static final long serialVersionUID = -7308384561003179534L;
+    private static final long serialVersionUID = -3434241364481076680L;
+
     private User user;
-
-
-    public PersonDetails(User user) {
-        this.user = user;
-    }
-
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singletonList(new SimpleGrantedAuthority(user.getRole()));

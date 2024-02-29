@@ -13,9 +13,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserDTO {
-    @Size(min = 3)
-    @NotEmpty
-    private String name;
+
     @NotEmpty
     //@Email
     @Size(min = 3)

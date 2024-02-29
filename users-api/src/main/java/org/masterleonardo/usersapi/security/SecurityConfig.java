@@ -1,25 +1,62 @@
 package org.masterleonardo.usersapi.security;
 
+import org.masterleonardo.usersapi.security.filters.AuthenticationFilter;
+import org.masterleonardo.usersapi.security.filters.CustomIpFilter;
+import org.masterleonardo.usersapi.services.UsersService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.util.matcher.RegexRequestMatcher;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig  {
 
+    private final BCryptPasswordEncoder passwordEncoder;
+    private final UsersService usersService;
+    @Autowired
+    public SecurityConfig( BCryptPasswordEncoder passwordEncoder, UsersService usersService) {
+        this.passwordEncoder = passwordEncoder;
+        this.usersService = usersService;
+    }
+    @Bean
+    public AuthenticationManager authManager(HttpSecurity http) throws Exception {
+        AuthenticationManagerBuilder authenticationManagerBuilder =
+                http.getSharedObject(AuthenticationManagerBuilder.class);
+        authenticationManagerBuilder.userDetailsService(usersService).passwordEncoder(passwordEncoder);
+        return authenticationManagerBuilder.build();
+    }
+
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable()
+        http.csrf().disable().addFilterBefore(new CustomIpFilter(), BasicAuthenticationFilter.class)
+                .addFilterBefore(new AuthenticationFilter(authManager(http)), BasicAuthenticationFilter.class)
                 .authorizeHttpRequests(authorize -> authorize
-                        .anyRequest().permitAll()
+                        .requestMatchers(new RegexRequestMatcher("/login.*", "GET")).permitAll()
+                        .requestMatchers(HttpMethod.POST,"/user").permitAll()
+                        .anyRequest().authenticated()
                 ).headers(httpSecurityHeadersConfigurer -> httpSecurityHeadersConfigurer
-                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable));
+                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
+                .formLogin(httpSecurityFormLoginConfigurer -> httpSecurityFormLoginConfigurer.
+                        loginProcessingUrl("/login").
+                        permitAll().
+                        defaultSuccessUrl("/test"));
         return http.build();
     }
+
+
+
+
+
 
 }

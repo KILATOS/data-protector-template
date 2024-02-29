@@ -30,10 +30,6 @@ public class User implements Serializable {
     @Column(name = "id")
     private long id;
 
-    @Column(name = "name")
-    @Size(min = 3)
-    @NotEmpty
-    private String name;
 
     @Column(name = "login")
     @NotEmpty

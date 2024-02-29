@@ -3,6 +3,7 @@ package org.masterleonardo.usersapi.controllers;
 import jakarta.validation.Valid;
 import org.masterleonardo.usersapi.dto.UserDTO;
 import org.masterleonardo.usersapi.exceptions.UserNotValidException;
+import org.masterleonardo.usersapi.models.User;
 import org.masterleonardo.usersapi.services.UsersService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -29,13 +30,13 @@ public class UsersController {
     }
 
     @PostMapping("/user")
-    public ResponseEntity<HttpStatus> addUser(@RequestBody @Valid UserDTO userDTO,
+    public ResponseEntity<UserDTO> addUser(@RequestBody @Valid UserDTO userDTO,
                                               BindingResult bindingResult){
         if (bindingResult.hasErrors()){
             throw new UserNotValidException();
         }
-        usersService.saveUser(usersService.castDTOtoModel(userDTO));
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        User user = usersService.saveUser(usersService.castDTOtoModel(userDTO));
+        return new ResponseEntity<>(usersService.castModelToDTO(user),HttpStatus.CREATED);
     }
     @ExceptionHandler
     private ResponseEntity<HttpStatus> handleUserNotValidException(UserNotValidException e){
