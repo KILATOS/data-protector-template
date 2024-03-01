@@ -42,8 +42,11 @@ public class SecurityConfig  {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable().addFilterBefore(new CustomIpFilter(), BasicAuthenticationFilter.class)
-                .addFilterBefore(new AuthenticationFilter(authManager(http), usersService, environment), BasicAuthenticationFilter.class)
+        AuthenticationManager authManager = authManager(http);
+        http.csrf().disable()
+                .authenticationManager(authManager)
+                .addFilterBefore(new CustomIpFilter(), BasicAuthenticationFilter.class)
+                .addFilter(new AuthenticationFilter(authManager, usersService, environment))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(new RegexRequestMatcher("/login.*", "GET")).permitAll()
                         .requestMatchers(HttpMethod.POST,"/user").permitAll()

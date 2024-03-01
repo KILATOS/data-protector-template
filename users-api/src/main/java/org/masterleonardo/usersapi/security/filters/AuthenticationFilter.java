@@ -8,6 +8,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.masterleonardo.usersapi.dto.UserDTO;
+import org.masterleonardo.usersapi.security.PersonDetails;
 import org.masterleonardo.usersapi.services.UsersService;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
 import org.springframework.core.env.Environment;
@@ -57,7 +58,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                                             HttpServletResponse response,
                                             FilterChain chain,
                                             Authentication authResult) throws IOException, ServletException {
-        String curUserUsername = ((User) authResult.getPrincipal()).getUsername();
+        String curUserUsername = ((PersonDetails) authResult.getPrincipal()).getUsername();
         org.masterleonardo.usersapi.models.User curUser = usersService.loadUserByLogin(curUserUsername);
         Date createdAt = new Date();
         String token = JWT.create().
