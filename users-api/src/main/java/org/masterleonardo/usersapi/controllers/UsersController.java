@@ -7,10 +7,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.masterleonardo.usersapi.dto.UserDTO;
 import org.masterleonardo.usersapi.exceptions.UserNotValidException;
 import org.masterleonardo.usersapi.models.User;
 import org.masterleonardo.usersapi.services.UsersService;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
@@ -23,6 +26,7 @@ public class UsersController {
 
     private final Environment environment;
     private final UsersService usersService;
+    private static final Logger logger = LogManager.getLogger(UsersController.class);
 
     @Autowired
     public UsersController(Environment environment, UsersService usersService) {
@@ -45,6 +49,7 @@ public class UsersController {
                     description = "Service isn`t started") })
     @GetMapping("/test")
     public String test(){
+
         return "test from " + environment.getProperty("local.server.port");
     }
 

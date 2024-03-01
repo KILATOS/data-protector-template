@@ -14,8 +14,7 @@ import io.swagger.v3.oas.models.servers.Server;
 @Configuration
 public class OpenAPIConfig {
 
-    @Value("${masterleonardo.openapi.dev-url}")
-    private String devUrl;
+
 
 
     @Bean
