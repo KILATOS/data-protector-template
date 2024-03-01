@@ -51,4 +51,10 @@ public class UsersService implements UserDetailsService {
 
         return new PersonDetails(user.get());
     }
+
+    public User loadUserByLogin(String username) throws UsernameNotFoundException{
+        Optional<User> curUser = usersRepository.findUserByLogin(username);
+        if (curUser.isEmpty()) throw new UsernameNotFoundException("User with login " + username + " not found.");
+        return curUser.get();
+    }
 }

@@ -6,6 +6,7 @@ import org.masterleonardo.usersapi.services.UsersService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -23,10 +24,12 @@ public class SecurityConfig  {
 
     private final BCryptPasswordEncoder passwordEncoder;
     private final UsersService usersService;
+    private final Environment environment;
     @Autowired
-    public SecurityConfig( BCryptPasswordEncoder passwordEncoder, UsersService usersService) {
+    public SecurityConfig(BCryptPasswordEncoder passwordEncoder, UsersService usersService, Environment environment) {
         this.passwordEncoder = passwordEncoder;
         this.usersService = usersService;
+        this.environment = environment;
     }
     @Bean
     public AuthenticationManager authManager(HttpSecurity http) throws Exception {
@@ -40,7 +43,7 @@ public class SecurityConfig  {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf().disable().addFilterBefore(new CustomIpFilter(), BasicAuthenticationFilter.class)
-                .addFilterBefore(new AuthenticationFilter(authManager(http)), BasicAuthenticationFilter.class)
+                .addFilterBefore(new AuthenticationFilter(authManager(http), usersService, environment), BasicAuthenticationFilter.class)
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(new RegexRequestMatcher("/login.*", "GET")).permitAll()
                         .requestMatchers(HttpMethod.POST,"/user").permitAll()
