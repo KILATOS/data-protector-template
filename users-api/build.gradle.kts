@@ -25,7 +25,7 @@ extra["springCloudVersion"] = "2023.0.0"
 
 dependencies {
 
-
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0")
     implementation("com.auth0:java-jwt:4.4.0")
     implementation("org.hibernate.validator:hibernate-validator:8.0.0.Final")
     implementation("org.springframework.boot:spring-boot-starter-security:3.2.3")

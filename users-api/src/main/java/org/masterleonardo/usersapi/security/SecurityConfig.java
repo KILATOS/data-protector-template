@@ -25,6 +25,14 @@ public class SecurityConfig  {
     private final BCryptPasswordEncoder passwordEncoder;
     private final UsersService usersService;
     private final Environment environment;
+    private static final String[] AUTH_WHITELIST = {
+            "/authenticate",
+            "/swagger-resources/**",
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/api/v1/app/user/auth/**",
+            "/v3/api-docs/**"
+    };
     @Autowired
     public SecurityConfig(BCryptPasswordEncoder passwordEncoder, UsersService usersService, Environment environment) {
         this.passwordEncoder = passwordEncoder;
@@ -48,6 +56,7 @@ public class SecurityConfig  {
                 .addFilterBefore(new CustomIpFilter(), BasicAuthenticationFilter.class)
                 .addFilter(new AuthenticationFilter(authManager, usersService, environment))
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(AUTH_WHITELIST).permitAll()
                         .requestMatchers(new RegexRequestMatcher("/login.*", "GET")).permitAll()
                         .requestMatchers(HttpMethod.POST,"/user").permitAll()
                         .anyRequest().authenticated()
