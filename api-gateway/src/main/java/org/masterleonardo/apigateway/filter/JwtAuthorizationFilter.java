@@ -8,6 +8,8 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.apache.http.HttpHeaders;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
@@ -25,6 +27,7 @@ import java.util.Map;
 public class JwtAuthorizationFilter extends AbstractGatewayFilterFactory<JwtAuthorizationFilter.Config> {
     @Autowired
     private Environment environment;
+    private final Logger logger = LoggerFactory.getLogger(JwtAuthorizationFilter.class);
 
     public JwtAuthorizationFilter() {
         super(Config.class);
@@ -37,6 +40,7 @@ public class JwtAuthorizationFilter extends AbstractGatewayFilterFactory<JwtAuth
         return ((exchange, chain) -> {
             ServerHttpRequest serverHttpRequest = exchange.getRequest();
             if (!serverHttpRequest.getHeaders().containsKey(HttpHeaders.AUTHORIZATION)){
+                logger.error("Attempt of authorization without token");
                 return onError(exchange,"No auth header", HttpStatus.UNAUTHORIZED);
             }
             String authorizationHeader = serverHttpRequest.getHeaders().get(HttpHeaders.AUTHORIZATION).get(0);
@@ -44,6 +48,7 @@ public class JwtAuthorizationFilter extends AbstractGatewayFilterFactory<JwtAuth
             try{
                 Map<String, Claim> claims = isJwtValid(jwt);
             } catch (JWTVerificationException e){
+                logger.error("Attempt of authorization with invalid token " + jwt );
                 return onError(exchange,"Invalid JWT", HttpStatus.UNAUTHORIZED);
             }
             return chain.filter(exchange);

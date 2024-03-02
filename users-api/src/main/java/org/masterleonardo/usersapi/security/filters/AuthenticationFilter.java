@@ -69,7 +69,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                         withIssuer(environment.getProperty("spring.application.name")).
                         withExpiresAt(new Date(createdAt.getTime() + environment.getProperty("jwt.token.duration", Long.class))).
                 sign(Algorithm.HMAC256(environment.getProperty("jwt.secretkey")));
-        response.addHeader("token", token);
+        response.addHeader("Authorization", token);
 
 
 

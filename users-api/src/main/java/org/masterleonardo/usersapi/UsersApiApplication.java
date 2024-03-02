@@ -8,6 +8,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 @EnableDiscoveryClient
 public class UsersApiApplication {
     public static void main(String[] args) {
+        //TODO make log file rotatable
         SpringApplication.run(UsersApiApplication.class, args);
     }
 
