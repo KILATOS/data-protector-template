@@ -57,9 +57,9 @@ public class SecurityConfig  {
                 .addFilter(new AuthenticationFilter(authManager, usersService, environment))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(AUTH_WHITELIST).permitAll()
-                        .requestMatchers(new RegexRequestMatcher("/login.*", "GET")).permitAll()
-                        .requestMatchers(HttpMethod.POST,"/user").permitAll()
-                        .anyRequest().authenticated()
+                        /*.requestMatchers(new RegexRequestMatcher("/login.*", "GET")).permitAll()
+                        .requestMatchers(HttpMethod.POST,"/user").permitAll()*/
+                        .anyRequest().permitAll()
                 ).headers(httpSecurityHeadersConfigurer -> httpSecurityHeadersConfigurer
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
                 .formLogin(httpSecurityFormLoginConfigurer -> httpSecurityFormLoginConfigurer.
