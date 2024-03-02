@@ -1,6 +1,12 @@
 package org.masterleonardo.apigateway.filter;
 
-import io.jsonwebtoken.Jwts;
+
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.Claim;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import org.apache.http.HttpHeaders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
@@ -12,6 +18,8 @@ import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+
+import java.util.Map;
 
 @Component
 public class JwtAuthorizationFilter extends AbstractGatewayFilterFactory<JwtAuthorizationFilter.Config> {
@@ -33,8 +41,10 @@ public class JwtAuthorizationFilter extends AbstractGatewayFilterFactory<JwtAuth
             }
             String authorizationHeader = serverHttpRequest.getHeaders().get(HttpHeaders.AUTHORIZATION).get(0);
             String jwt = authorizationHeader.substring(7);
-            if (!isJwtValid(jwt)){
-                return onError(exchange,"JWT is invalid", HttpStatus.UNAUTHORIZED);
+            try{
+                Map<String, Claim> claims = isJwtValid(jwt);
+            } catch (JWTVerificationException e){
+                return onError(exchange,"Invalid JWT", HttpStatus.UNAUTHORIZED);
             }
             return chain.filter(exchange);
         });
@@ -44,16 +54,13 @@ public class JwtAuthorizationFilter extends AbstractGatewayFilterFactory<JwtAuth
         response.setStatusCode(httpStatus);
         return response.setComplete();
     }
-    private boolean isJwtValid(String jwt){
-        String subject = Jwts.parser()
-                .setSigningKey(environment.getProperty("jwt.secret.token"))
-                .parseClaimsJws(jwt)
-                .getBody()
-                .getSubject();
-        if (subject == null || subject.isEmpty()){
-            return false;
-        }
-        return true;
+    private Map<String, Claim> isJwtValid(String token) throws JWTVerificationException {
+        JWTVerifier verifier = JWT.require(Algorithm.HMAC256(environment.getProperty("jwt.secret.token")))
+                .withSubject("UserDetails")
+                .withIssuer("user-api")
+                .build();
+        DecodedJWT jwt = verifier.verify(token);
+        return jwt.getClaims();
     }
 
     public static class Config{

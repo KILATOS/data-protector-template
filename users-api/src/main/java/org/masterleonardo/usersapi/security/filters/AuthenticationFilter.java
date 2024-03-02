@@ -64,7 +64,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         String token = JWT.create().
                         withSubject("UserDetails").
                         withClaim("username", curUser.getLogin()).
-                        withClaim("role", curUser.getLogin()).
+                        withClaim("role", curUser.getRole()).
                         withIssuedAt(createdAt).
                         withIssuer(environment.getProperty("spring.application.name")).
                         withExpiresAt(new Date(createdAt.getTime() + environment.getProperty("jwt.token.duration", Long.class))).
