@@ -60,7 +60,7 @@ public class JwtAuthorizationFilter extends AbstractGatewayFilterFactory<JwtAuth
         return response.setComplete();
     }
     private Map<String, Claim> isJwtValid(String token) throws JWTVerificationException {
-        JWTVerifier verifier = JWT.require(Algorithm.HMAC256(environment.getProperty("jwt.secret.token")))
+        JWTVerifier verifier = JWT.require(Algorithm.HMAC256(environment.getProperty("jwt.secretkey")))
                 .withSubject("UserDetails")
                 .withIssuer("user-api")
                 .build();

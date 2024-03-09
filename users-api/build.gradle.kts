@@ -58,6 +58,9 @@ dependencies {
     //config
     implementation("org.springframework.cloud:spring-cloud-starter-bootstrap")
     implementation("org.springframework.cloud:spring-cloud-starter-config:4.1.0")
+    //MQ
+    implementation("org.springframework.cloud:spring-cloud-starter-bus-amqp")
+
 
 
 }
