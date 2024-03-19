@@ -1,10 +1,10 @@
-package org.masterleonardo.taskmanagerapi;
+package master.leonardo.wrapperapi;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class TaskManagerApiApplicationTests {
+class WrapperApiApplicationTests {
 
     @Test
     void contextLoads() {

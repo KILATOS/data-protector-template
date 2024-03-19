@@ -1,4 +1,4 @@
-package org.masterleonardo.taskmanagerapi;
+package master.leonardo.wrapperapi;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -6,10 +6,10 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 @SpringBootApplication
 @EnableDiscoveryClient
-public class TaskManagerApiApplication {
+public class WrapperApiApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(TaskManagerApiApplication.class, args);
+        SpringApplication.run(WrapperApiApplication.class, args);
     }
 
 }

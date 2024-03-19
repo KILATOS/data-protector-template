@@ -1,5 +1,5 @@
 rootProject.name = "master-leonardo-app"
-include("eureka-server","task-manager-api")
+include("eureka-server")
 
 
 
