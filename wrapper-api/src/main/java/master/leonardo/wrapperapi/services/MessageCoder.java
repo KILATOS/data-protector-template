@@ -120,7 +120,6 @@ public class MessageCoder implements AbstractCoder<PersonDTO>{
 			throw new RuntimeException(e);
 		}
         EncryptedPersonBuilder builder = new EncryptedPersonBuilder(new EncryptedPerson());
-        System.out.println(Arrays.toString(digitalSignature));
         EncryptedPerson personToReturn = builder.setActiveMember(dto.getActiveMember())
         		.setAge(dto.getAge())
         		.setBalance(dto.getBalance())
