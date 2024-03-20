@@ -9,5 +9,10 @@ class WrapperApiApplicationTests {
     @Test
     void contextLoads() {
     }
+    
+    @Test
+    void messageCoderTest() {
+    	
+    }
 
 }

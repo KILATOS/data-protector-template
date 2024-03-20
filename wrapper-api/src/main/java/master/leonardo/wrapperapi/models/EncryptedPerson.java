@@ -16,6 +16,15 @@ public class EncryptedPerson {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private long id;
-    @Column(name = "encrypted_data")
-    private String encryptedData;
+    
+    @Column(name = "hash")
+    private String hash;
+    
+    @Column(name = "signature")
+    private String signature;
+    
+    public EncryptedPerson(String hash, String signature) {
+    	this.hash = hash;
+    	this.signature = signature;
+    }
 }
