@@ -17,9 +17,9 @@ public class PersonDTO {
     private int tenure;
     private long balance;
     private int productsNumber;
-    private short creditCard;
-    private short activeMember;
+    private int creditCard;
+    private int activeMember;
     private double estimatedSalary;
-    private short churn;
+    private int churn;
 
 }

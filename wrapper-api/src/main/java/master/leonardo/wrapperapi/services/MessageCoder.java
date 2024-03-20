@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import master.leonardo.wrapperapi.DTO.PersonDTO;
 import master.leonardo.wrapperapi.models.EncryptedPerson;
+import master.leonardo.wrapperapi.models.EncryptedPersonBuilder;
+
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,8 +25,11 @@ import javax.crypto.NoSuchPaddingException;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.cert.CertificateException;
+import java.util.Arrays;
+import java.util.Base64;
 /**
  * MessageCoder class`s purpose is to encode PersonDTO to EncodedPerson, to write it in database.
  * 1) Firstly, we load private key from sender_keystore.p12 file 
@@ -64,7 +69,7 @@ public class MessageCoder implements AbstractCoder<PersonDTO>{
         try {
             keyStore= KeyStore.getInstance("PKCS12");
             char[] passwordToKeyFile = environment.getProperty("encryption.passwordToPrivateKeyFile").toCharArray();
-			keyStore.load(new FileInputStream("sender_keystore.p12"), passwordToKeyFile);
+			keyStore.load(new FileInputStream("../wrapper-api/src/main/resources/sender_keystore.p12"), passwordToKeyFile);
             privateKey =
                     (PrivateKey) keyStore.getKey("senderKeyPair", passwordToKeyFile);
         } catch (IOException | NoSuchAlgorithmException | CertificateException | KeyStoreException |
@@ -114,10 +119,24 @@ public class MessageCoder implements AbstractCoder<PersonDTO>{
 			logger.error(e.getMessage());
 			throw new RuntimeException(e);
 		}
-        EncryptedPerson encryptedPerson = new EncryptedPerson(new String(messageHash), new String(digitalSignature));
+        EncryptedPersonBuilder builder = new EncryptedPersonBuilder(new EncryptedPerson());
+        System.out.println(Arrays.toString(digitalSignature));
+        EncryptedPerson personToReturn = builder.setActiveMember(dto.getActiveMember())
+        		.setAge(dto.getAge())
+        		.setBalance(dto.getBalance())
+        		.setChurn(dto.getChurn())
+        		.setCountry(dto.getCountry())
+        		.setCreditCard(dto.getCreditCard())
+        		.setCreditScore(dto.getCreditScore())
+        		.setEstimatedSalary(dto.getEstimatedSalary())
+        		.setGender(dto.getGender())
+        		.setProductsNumber(dto.getProductsNumber())
+        		.setSignature(Base64.getEncoder().encodeToString(digitalSignature))
+        		.setTenure(dto.getTenure())
+        		.build();
 
 
-        return encryptedPerson;
+        return personToReturn;
     }
 
 }
