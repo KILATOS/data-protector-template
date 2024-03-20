@@ -33,8 +33,8 @@ import java.util.Base64;
 /**
  * MessageCoder class`s purpose is to encode PersonDTO to EncodedPerson, to write it in database.
  * 1) Firstly, we load private key from sender_keystore.p12 file 
- * 2) Next, we convert DTO object to JSON with ObjectMapper
- * 3) Then, generate hash of Json with MessageDigest
+ * 2) Next, we convert DTO object to string with toString
+ * 3) Then, generate hash of gotten string
  * 4) Finally, encrypt latter hash with Cipher class
  * 
  *  
@@ -77,17 +77,10 @@ public class MessageCoder implements AbstractCoder<PersonDTO>{
             throw new RuntimeException(e);
         }
 
-        //converting DTO object to JSON string
-        ObjectMapper objectMapper = new ObjectMapper();
-        String stringToEncrypt;
+        //converting DTO object to string
+    
+        String stringToEncrypt  = dto.toString();
 
-        try {
-            stringToEncrypt = objectMapper.writeValueAsString(dto);
-        } catch (JsonProcessingException e) {
-            logger.error(e.getMessage());
-            throw new RuntimeException(e);
-        }
-        
         //message hash generating
         MessageDigest md = null;
         try {
@@ -119,6 +112,7 @@ public class MessageCoder implements AbstractCoder<PersonDTO>{
 			logger.error(e.getMessage());
 			throw new RuntimeException(e);
 		}
+        
         EncryptedPersonBuilder builder = new EncryptedPersonBuilder(new EncryptedPerson());
         EncryptedPerson personToReturn = builder.setActiveMember(dto.getActiveMember())
         		.setAge(dto.getAge())

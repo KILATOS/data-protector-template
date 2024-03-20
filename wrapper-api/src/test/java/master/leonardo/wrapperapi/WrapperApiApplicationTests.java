@@ -10,16 +10,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import master.leonardo.wrapperapi.DTO.PersonDTO;
+import master.leonardo.wrapperapi.models.EncryptedPerson;
 import master.leonardo.wrapperapi.services.MessageCoder;
+import master.leonardo.wrapperapi.services.MessageDecoder;
 
 @SpringBootTest
 class WrapperApiApplicationTests {
 	
 	private final MessageCoder coder;
+	private final MessageDecoder decoder;
 	
 	@Autowired
-	public WrapperApiApplicationTests(MessageCoder messageCoder) {
+	public WrapperApiApplicationTests(MessageCoder messageCoder, MessageDecoder decoder) {
 		this.coder = messageCoder;
+		this.decoder = decoder;
 		
 	}
 
@@ -30,8 +34,11 @@ class WrapperApiApplicationTests {
     @Test
     void messageCoderTest() {
     	PersonDTO testPerson = new PersonDTO(619,"France","Female",42,2,0,1,1,1,101348.88,1);
-    	String signature = coder.code(testPerson).getSignature();
-    	Assertions.assertEquals(Arrays.toString(Base64.getDecoder().decode(signature)), "[120, 69, -42, -35, -41, 5, -80, -10, 71, 25, -59, -99, 122, -2, -85, -1, 60, -30, -110, 10, -106, 38, 63, -63, -82, -73, -21, 7, -17, 17, 85, -48, 12, -26, 112, -117, -59, 47, -101, 26, -12, 95, 65, 94, 123, 123, -50, 102, 84, -25, 61, 127, 8, -114, -44, 107, 32, 97, -103, -85, 47, 115, -91, 90, 107, -65, -21, 93, 98, -72, 22, 55, 82, 4, 26, -87, 70, 31, 122, -95, 123, -117, -15, 52, 46, 5, 110, 35, -111, 26, 101, 55, -78, -45, 2, -14, 118, -17, -35, -101, 111, -114, -34, 105, -107, 67, -117, -66, -115, -108, -27, -111, -76, -76, 57, 42, 22, 10, -11, -25, 29, -114, -36, -84, -126, -105, 4, 65, 18, 30, -125, -116, -14, 108, 71, 75, -59, 96, -65, 42, -114, -31, -21, 72, -52, -109, 83, -4, -8, -51, -106, 78, -86, 48, 14, 41, -88, 36, -113, -31, -35, 48, -47, -80, 55, -64, 7, 4, -76, 82, 32, 127, 68, 33, -3, -52, 70, 113, 79, -16, 67, -84, 89, -50, -101, -10, -84, -68, -110, 0, 57, -81, -59, 127, 99, -18, -101, 94, -106, 109, 47, -29, 95, -26, -117, 15, 49, 77, 84, 3, -52, -69, 81, 72, -117, 2, -30, -93, 1, -112, -14, 112, 48, 26, -19, 18, 5, -8, 122, -32, 120, -2, 16, 96, -111, -113, 6, -33, -82, -27, 62, 1, -15, 63, -12, -65, 122, -123, -95, 117, -122, 51, -73, 86, -83, -99]",
+    	EncryptedPerson person = coder.code(testPerson);
+    	String signature = person.getSignature();
+    	
+    	decoder.decode(person);
+    	Assertions.assertEquals(Arrays.toString(Base64.getDecoder().decode(signature)), "[13, 12, -122, 0, -54, -9, 13, 71, -65, -85, -5, 99, -61, 27, -9, 59, 103, 51, 63, 82, -65, -72, -51, 9, -68, 93, 110, 34, -6, 103, -56, 16, 49, -56, -97, -120, -93, 25, -85, 61, -75, -109, 107, 51, 6, -80, 91, -22, 33, -7, -14, -78, -85, 12, -39, -114, 39, 80, 49, 32, 62, -23, -43, -24, -4, 40, -83, 23, 54, -71, 102, 90, 105, -103, -105, -122, 113, 10, -109, 94, -114, -18, -116, 105, -99, -24, 123, 30, -27, -88, -99, 108, 66, -80, 38, -50, 26, 88, 4, -15, -44, 68, -98, -60, -56, -77, -2, 30, 47, 73, -97, 54, -36, 43, -84, 68, 113, -121, 37, -2, 121, 18, 47, -101, -87, -22, -80, 7, -51, -112, 17, 36, -96, 35, -109, 65, -62, -32, -56, 46, 62, -56, 58, -79, -77, 70, -69, 86, -67, -109, 84, -3, -120, 97, -112, 31, -20, 119, 58, 94, 107, 30, -111, -94, -19, -27, 114, -30, -75, -120, -12, -94, 120, 85, 39, 116, -50, -81, -43, 110, -93, -34, -72, 16, 37, 118, -28, -81, 99, 59, -32, -115, 6, 84, -11, 20, 28, 2, -107, 119, 96, 15, -46, -89, 75, 25, 77, 51, 113, 18, 103, 91, -12, 90, 64, -52, 34, -15, 90, 121, 48, -122, 115, -116, -21, -39, -58, 14, 107, -2, -31, 123, 110, 83, -25, -18, 5, 62, -101, 9, 3, -42, 60, 26, 28, 113, 85, 124, -19, -93, -7, 38, -52, 27, 64, 22]",
     			"");
     	
     	

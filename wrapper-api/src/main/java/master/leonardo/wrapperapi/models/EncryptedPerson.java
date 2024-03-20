@@ -53,12 +53,12 @@ public class EncryptedPerson {
     @Column(name = "signature")
     private String signature;
 
-	@Override
+    @Override
 	public String toString() {
-		return "EncryptedPerson [id=" + id + ", creditScore=" + creditScore + ", country=" + country + ", gender="
-				+ gender + ", age=" + age + ", tenure=" + tenure + ", balance=" + balance + ", productsNumber="
-				+ productsNumber + ", creditCard=" + creditCard + ", activeMember=" + activeMember
-				+ ", estimatedSalary=" + estimatedSalary + ", churn=" + churn + ", signature=" + signature + "]";
+		return "[creditScore=" + creditScore + ", country=" + country + ", gender=" + gender + ", age=" + age
+				+ ", tenure=" + tenure + ", balance=" + balance + ", productsNumber=" + productsNumber + ", creditCard="
+				+ creditCard + ", activeMember=" + activeMember + ", estimatedSalary=" + estimatedSalary + ", churn="
+				+ churn + "]";
 	}
     
     

@@ -5,10 +5,13 @@ import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
+import java.util.Arrays;
+import java.util.Base64;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -18,7 +21,13 @@ import javax.crypto.NoSuchPaddingException;
 import master.leonardo.wrapperapi.DTO.PersonDTO;
 import master.leonardo.wrapperapi.models.EncryptedPerson;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Component;
+
+@Component
 public class MessageDecoder implements AbstractDecoder<EncryptedPerson> {
+	private static final Logger logger = LogManager.getLogger(MessageCoder.class);
 
 	@Override
 	public PersonDTO decode(EncryptedPerson encryptedPerson) {
@@ -32,7 +41,7 @@ public class MessageDecoder implements AbstractDecoder<EncryptedPerson> {
 			e.printStackTrace();
 		}
 		try {
-			keyStore.load(new FileInputStream("receiver_keytore.p12"), "changeit".toCharArray());
+			keyStore.load(new FileInputStream("../wrapper-api/src/main/resources/receiver_keystore.p12"), "changeit".toCharArray());
 		} catch (NoSuchAlgorithmException | CertificateException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -47,9 +56,9 @@ public class MessageDecoder implements AbstractDecoder<EncryptedPerson> {
 		PublicKey publicKey = certificate.getPublicKey();
 		
 		//getting signature
-		byte[] encryptedMessageHash = encryptedPerson.getSignature().getBytes();
+		byte[] encryptedMessageHash = Base64.getDecoder().decode(encryptedPerson.getSignature());
 		
-		//decrypting message hash
+		//decrypting signature
 		Cipher cipher = null;
 		try {
 			cipher = Cipher.getInstance("RSA");
@@ -63,14 +72,26 @@ public class MessageDecoder implements AbstractDecoder<EncryptedPerson> {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		byte[] decryptedMessageHash;
+		byte[] decryptedMessageHash = null;
 		try {
 			decryptedMessageHash = cipher.doFinal(encryptedMessageHash);
 		} catch (IllegalBlockSizeException | BadPaddingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		String stringToDecrypt = encryptedPerson.toString();
 		
+		MessageDigest md = null;
+        try {
+            md = MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException e) {
+            logger.error(e.getMessage());
+            throw new RuntimeException(e);
+        }
+        byte[] messageHash = md.digest(stringToDecrypt.getBytes());
+        
+        boolean isCorrect = Arrays.equals(decryptedMessageHash, messageHash);
+        System.out.println(isCorrect);
 		
 		return null;
 	}

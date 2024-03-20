@@ -21,5 +21,13 @@ public class PersonDTO {
     private int activeMember;
     private double estimatedSalary;
     private int churn;
+	@Override
+	public String toString() {
+		return "[creditScore=" + creditScore + ", country=" + country + ", gender=" + gender + ", age=" + age
+				+ ", tenure=" + tenure + ", balance=" + balance + ", productsNumber=" + productsNumber + ", creditCard="
+				+ creditCard + ", activeMember=" + activeMember + ", estimatedSalary=" + estimatedSalary + ", churn="
+				+ churn + "]";
+	}
+    
 
 }
