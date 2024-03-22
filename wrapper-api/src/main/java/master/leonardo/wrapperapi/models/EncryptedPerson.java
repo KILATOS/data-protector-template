@@ -11,6 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
+@Table(name = "encrypted_people")
 public class EncryptedPerson {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -12,6 +12,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import master.leonardo.wrapperapi.DTO.PersonDTO;
 import master.leonardo.wrapperapi.DTO.PersonDTOBuilder;
+import master.leonardo.wrapperapi.exceptions.IntegrityViolationOfDataException;
+import master.leonardo.wrapperapi.exceptions.NoSuchPersonException;
 import master.leonardo.wrapperapi.models.EncryptedPerson;
 import master.leonardo.wrapperapi.services.MessageCoder;
 import master.leonardo.wrapperapi.services.MessageDecoder;
@@ -80,6 +82,7 @@ class WrapperApiApplicationTests {
     void personServiceAddPersonTest() {
     	Assertions.assertDoesNotThrow(()->{peopleService.addPerson(testPerson);});
     }
+    
     @Test
     void personServiceGetPersonRequestTest1() {
         Assertions.assertDoesNotThrow(()->{peopleService.getPerson(1);});
@@ -88,6 +91,14 @@ class WrapperApiApplicationTests {
     @Test
     void personServiceGetPersonRequestTest2() {
         Assertions.assertEquals(testPerson, peopleService.getPerson(1));
+    }
+    @Test
+    void personServiceGetPersonRequestTest3() {
+        Assertions.assertThrows(NoSuchPersonException.class, () -> peopleService.getPerson(0));
+    }
+    @Test
+    void personServiceGetPersonRequestTest4() {
+        //TODO alter user 1 and assert that the exception is thrown
     }
 
 }

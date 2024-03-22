@@ -1,9 +1,14 @@
 package master.leonardo.wrapperapi.controllers;
 
 import master.leonardo.wrapperapi.DTO.PersonDTO;
+import master.leonardo.wrapperapi.exceptions.IntegrityViolationOfDataException;
+import master.leonardo.wrapperapi.exceptions.NoSuchPersonException;
 import master.leonardo.wrapperapi.exceptions.PersonNotValidException;
 import master.leonardo.wrapperapi.exceptions.PersonSaveProcessingException;
+import master.leonardo.wrapperapi.responses.IntegrityViolationOfDataResponse;
+import master.leonardo.wrapperapi.responses.NoSuchPersonResponse;
 import master.leonardo.wrapperapi.responses.PersonNotValidResponse;
+import master.leonardo.wrapperapi.responses.PersonSaveProcessingResponse;
 import master.leonardo.wrapperapi.services.PeopleService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,18 +29,17 @@ import java.util.List;
 @RestController
 public class DataRouterController {
 
-
-    @GetMapping
-    public List<PersonDTO> getPeople(){
-        //TODO
-        return null;
-    }
-
     private final PeopleService peopleService;
     
     @Autowired
     public DataRouterController(PeopleService peopleService) {
         this.peopleService = peopleService;
+    }
+    
+    @GetMapping
+    public List<PersonDTO> getPeople(){
+        //TODO
+        return null;
     }
     
     @PostMapping
@@ -56,16 +60,59 @@ public class DataRouterController {
     	}
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
-    
+    /**
+     * Handles PersonNotValidException thrown by the controller.
+     * @param e Exception object
+     * @return ResponseEntity with the error message and Http status code
+     */
     @ExceptionHandler
     private ResponseEntity<PersonNotValidResponse> handleUserNotValidException(PersonNotValidException e){
     	return new ResponseEntity<>(new PersonNotValidResponse(e.getMessage()),HttpStatus.BAD_REQUEST);
     }
     
+    /**
+     * Handles PersonSaveProcessingException thrown by the controller.
+     * @param e Exception object
+     * @return ResponseEntity with the error message and Http status code
+     */
     @ExceptionHandler
-    private ResponseEntity<PersonSaveProcessingException> handlePersonSaveProcessingException(PersonSaveProcessingException e){
-        return new ResponseEntity<>(new PersonSaveProcessingException(e.getMessage()),HttpStatus.INTERNAL_SERVER_ERROR);
+    private ResponseEntity<PersonSaveProcessingResponse> handlePersonSaveProcessingException(PersonSaveProcessingException e){
+        return new ResponseEntity<>(new PersonSaveProcessingResponse(e.getMessage()),HttpStatus.INTERNAL_SERVER_ERROR);
     }
+    
+    
+    @GetMapping
+    public ResponseEntity<PersonDTO> getPerson(long id){
+    	PersonDTO personToReturn;
+    	try {
+    		personToReturn = peopleService.getPerson(id);
+    	} catch (NoSuchPersonException | IntegrityViolationOfDataException e) {
+    		throw e;
+    	} 
+    	return new ResponseEntity<>(personToReturn,HttpStatus.OK);
+    	
+    }
+    
+    /**
+     * Handles NoSuchPersonException thrown by the controller.
+     * @param e Exception object
+     * @return ResponseEntity with the error message and Http status code
+     */
+    @ExceptionHandler
+    private ResponseEntity<NoSuchPersonResponse> handleNoSuchPersonException(NoSuchPersonException e){
+        return new ResponseEntity<>(new NoSuchPersonResponse(e.getMessage()),HttpStatus.NOT_FOUND);
+    }
+    /**
+     * Handles IntegrityViolationOfDataException thrown by the controller
+     * @param e exception object
+     * @return response entity with the error message and Http status code
+     */
+    @ExceptionHandler
+    private ResponseEntity<IntegrityViolationOfDataResponse> handleIntegrityViolationOfDataException(IntegrityViolationOfDataException e){
+        return new ResponseEntity<>(new IntegrityViolationOfDataResponse(e.getMessage()),HttpStatus.CONFLICT);
+    }
+    
+   
     
     
 }
