@@ -12,6 +12,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Optional;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -19,39 +20,62 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
 import master.leonardo.wrapperapi.DTO.PersonDTO;
+import master.leonardo.wrapperapi.DTO.PersonDTOBuilder;
 import master.leonardo.wrapperapi.models.EncryptedPerson;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+
+/**
+ * This class is responsible for decoding the encrypted person which is stored in the database.
+ * Also it is responsible for validating the signature of the encrypted person.
+ */
 @Component
 public class MessageDecoder implements AbstractDecoder<EncryptedPerson> {
 	private static final Logger logger = LogManager.getLogger(MessageCoder.class);
-
+	private final Environment environment;
+	
+    @Autowired
+    public MessageDecoder(Environment environment) {
+        this.environment = environment;
+    }
+    
+    /**
+     * Decodes the encrypted person and validates the signature.
+     * If the signature is valid, the decrypted person is returned.
+     * Otherwise the null is returned.
+     * @param encryptedPerson from the database
+     * @return Optional of PersonDTO
+     */
 	@Override
-	public PersonDTO decode(EncryptedPerson encryptedPerson) {
+	public Optional<PersonDTO> decode(EncryptedPerson encryptedPerson) {
 		
 		//getting public key
 		KeyStore keyStore = null;
+		char[] passwordToKeyFile = environment.getProperty("encryption.passwordToPrivateKeyFile").toCharArray();
 		try {
 			keyStore = KeyStore.getInstance("PKCS12");
 		} catch (KeyStoreException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
+			throw new RuntimeException(e);
 		}
 		try {
-			keyStore.load(new FileInputStream("../wrapper-api/src/main/resources/receiver_keystore.p12"), "changeit".toCharArray());
+			keyStore.load(new FileInputStream("../wrapper-api/src/main/resources/receiver_keystore.p12"), passwordToKeyFile);
 		} catch (NoSuchAlgorithmException | CertificateException | IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
+			throw new RuntimeException(e);
 		}
 		Certificate certificate = null;
 		try {
 			certificate = keyStore.getCertificate("receiverKeyPair");
+			
 		} catch (KeyStoreException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
+			throw new RuntimeException(e);
 		}
 		PublicKey publicKey = certificate.getPublicKey();
 		
@@ -63,21 +87,21 @@ public class MessageDecoder implements AbstractDecoder<EncryptedPerson> {
 		try {
 			cipher = Cipher.getInstance("RSA");
 		} catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
+			throw new RuntimeException(e);
 		}
 		try {
 			cipher.init(Cipher.DECRYPT_MODE, publicKey);
 		} catch (InvalidKeyException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
+			throw new RuntimeException(e);
 		}
 		byte[] decryptedMessageHash = null;
 		try {
 			decryptedMessageHash = cipher.doFinal(encryptedMessageHash);
 		} catch (IllegalBlockSizeException | BadPaddingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
+			throw new RuntimeException(e);
 		}
 		String stringToDecrypt = encryptedPerson.toString();
 		
@@ -91,9 +115,27 @@ public class MessageDecoder implements AbstractDecoder<EncryptedPerson> {
         byte[] messageHash = md.digest(stringToDecrypt.getBytes());
         
         boolean isCorrect = Arrays.equals(decryptedMessageHash, messageHash);
-        System.out.println(isCorrect);
+        PersonDTO personToReturn = null;
+        if (isCorrect) {
+        	PersonDTOBuilder personDTOBuilder = new PersonDTOBuilder();
+        	 personToReturn = personDTOBuilder.setActiveMember(encryptedPerson.getActiveMember())
+        	.setAge(encryptedPerson.getAge())
+        	.setBalance(encryptedPerson.getBalance())
+        	.setChurn(encryptedPerson.getChurn())
+        	.setCountry(encryptedPerson.getCountry())
+        	.setCreditCard(encryptedPerson.getCreditCard())
+        	.setCreditScore(encryptedPerson.getCreditScore())
+        	.setEstimatedSalary(encryptedPerson.getEstimatedSalary())
+        	.setGender(encryptedPerson.getGender())
+        	.setProductsNumber(encryptedPerson.getProductsNumber())
+        	.setTenure(encryptedPerson.getTenure())
+        	.build();
+        	
+        } else {
+        	logger.error("Signature is not correct!" + encryptedPerson.toString());
+        }
+        return Optional.of(personToReturn);
 		
-		return null;
 	}
 
 }

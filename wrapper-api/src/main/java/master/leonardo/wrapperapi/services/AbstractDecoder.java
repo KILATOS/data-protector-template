@@ -1,11 +1,13 @@
 package master.leonardo.wrapperapi.services;
 
+import java.util.Optional;
+
 import master.leonardo.wrapperapi.DTO.PersonDTO;
 
 /**
 *
-* @param <T> Type of encryptedPerson class, which converted to PersonDTO
+* @param <T> Type of encryptedPerson class, which converted to Optional<PersonDTO>
 */
 public interface AbstractDecoder<T> {
-	public PersonDTO decode(T encryptedPerson);
+	public Optional<PersonDTO> decode(T encryptedPerson);
 }
