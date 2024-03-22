@@ -50,7 +50,7 @@ public class EncryptedPerson {
     @Column(name = "churn")
     private int churn;
     
-    @Column(name = "signature")
+    @Column(name = "signature", length = 500)
     private String signature;
 
     @Override

@@ -15,12 +15,14 @@ import master.leonardo.wrapperapi.DTO.PersonDTOBuilder;
 import master.leonardo.wrapperapi.models.EncryptedPerson;
 import master.leonardo.wrapperapi.services.MessageCoder;
 import master.leonardo.wrapperapi.services.MessageDecoder;
+import master.leonardo.wrapperapi.services.PeopleService;
 
 @SpringBootTest
 class WrapperApiApplicationTests {
 	
 	private final MessageCoder coder;
 	private final MessageDecoder decoder;
+	private final PeopleService peopleService;
 	private static final PersonDTO testPerson;
 	
 	static {
@@ -40,10 +42,11 @@ class WrapperApiApplicationTests {
 	}
 	
 	@Autowired
-	public WrapperApiApplicationTests(MessageCoder messageCoder, MessageDecoder decoder) {
+	public WrapperApiApplicationTests(MessageCoder messageCoder, MessageDecoder decoder, PeopleService peopleService) {
 		this.coder = messageCoder;
 		this.decoder = decoder;
-		
+		this.peopleService = peopleService;
+
 	}
 
     @Test
@@ -71,6 +74,11 @@ class WrapperApiApplicationTests {
     	EncryptedPerson person = coder.code(testPerson);
         Optional<PersonDTO> decodedPerson = decoder.decode(person);
         Assertions.assertTrue(decodedPerson.get().equals(testPerson));
+    }
+    
+    @Test
+    void personServiceTest() {
+    	Assertions.assertDoesNotThrow(()->{peopleService.addPerson(testPerson);});
     }
 
 }
