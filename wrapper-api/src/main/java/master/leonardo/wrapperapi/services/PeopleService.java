@@ -1,5 +1,7 @@
 package master.leonardo.wrapperapi.services;
 
+import java.util.Optional;
+
 import org.apache.commons.logging.LogFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -10,16 +12,20 @@ import jakarta.transaction.Transactional;
 import master.leonardo.wrapperapi.DTO.PersonDTO;
 import master.leonardo.wrapperapi.models.EncryptedPerson;
 import master.leonardo.wrapperapi.repositories.EncryptedPeopleRepository;
+import master.leonardo.wrapperapi.exceptions.IntegrityViolationOfDataException;
+import master.leonardo.wrapperapi.exceptions.NoSuchPersonException;
 
 @Service
 public class PeopleService {
 	private static final Logger logger = LogManager.getLogger(PeopleService.class);
 	private final MessageCoder messageCoder;
+	private final MessageDecoder messageDecoder;
 	private final EncryptedPeopleRepository encryptedPeopleRepository;
 	
 	@Autowired
-    public PeopleService(MessageCoder messageCoder, EncryptedPeopleRepository encryptedPeopleRepository) {
+    public PeopleService(MessageCoder messageCoder, EncryptedPeopleRepository encryptedPeopleRepository, MessageDecoder messageDecoder) {
         this.messageCoder = messageCoder;
+		this.messageDecoder = messageDecoder;
 		this.encryptedPeopleRepository = encryptedPeopleRepository;
     }
 	
@@ -33,6 +39,18 @@ public class PeopleService {
 			logger.error(e.getCause().getMessage());
 			throw e;
 		}	
+	}
+	
+	public PersonDTO getPerson(long id) {
+		EncryptedPerson person = encryptedPeopleRepository.findById(id).orElseThrow(
+				() -> new NoSuchPersonException(String.format("Person with id %d not found", id))
+		);
+		Optional<PersonDTO> personToReturn = messageDecoder.decode(person);
+		if (!personToReturn.isPresent()) {
+			throw new IntegrityViolationOfDataException(String.format("Person with id %d has data violation", id));
+		}
+		
+        return personToReturn.get();
 	}
 
 }

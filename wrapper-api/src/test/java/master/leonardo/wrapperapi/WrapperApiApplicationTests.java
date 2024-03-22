@@ -77,8 +77,17 @@ class WrapperApiApplicationTests {
     }
     
     @Test
-    void personServiceTest() {
+    void personServiceAddPersonTest() {
     	Assertions.assertDoesNotThrow(()->{peopleService.addPerson(testPerson);});
+    }
+    @Test
+    void personServiceGetPersonRequestTest1() {
+        Assertions.assertDoesNotThrow(()->{peopleService.getPerson(1);});
+    }
+    
+    @Test
+    void personServiceGetPersonRequestTest2() {
+        Assertions.assertEquals(testPerson, peopleService.getPerson(1));
     }
 
 }
