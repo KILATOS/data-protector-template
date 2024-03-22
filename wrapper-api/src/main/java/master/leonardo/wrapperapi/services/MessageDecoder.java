@@ -28,13 +28,14 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 
 /**
  * This class is responsible for decoding the encrypted person which is stored in the database.
  * Also it is responsible for validating the signature of the encrypted person.
  */
-@Component
+@Service
 public class MessageDecoder implements AbstractDecoder<EncryptedPerson> {
 	private static final Logger logger = LogManager.getLogger(MessageCoder.class);
 	private final Environment environment;

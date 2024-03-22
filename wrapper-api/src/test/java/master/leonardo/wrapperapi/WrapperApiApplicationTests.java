@@ -24,7 +24,6 @@ class WrapperApiApplicationTests {
 	private static final PersonDTO testPerson;
 	
 	static {
-		//testPerson = new PersonDTO(619,"France","Female",42,2,0,1,1,1,101348.88,1);
 		PersonDTOBuilder personDTOBuilder = new PersonDTOBuilder();
 		testPerson = personDTOBuilder.setCreditScore(619)
 		.setCountry("France")
