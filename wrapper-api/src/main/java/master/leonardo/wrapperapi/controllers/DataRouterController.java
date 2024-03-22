@@ -18,6 +18,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,7 +43,7 @@ public class DataRouterController {
         return null;
     }
     
-    @PostMapping
+    @PostMapping("/person")
     public ResponseEntity<HttpStatus> putOnePersonToDB(@RequestBody @Valid PersonDTO payload,
     													BindingResult bindingResult){
     	if (bindingResult.hasErrors()){
@@ -81,8 +82,8 @@ public class DataRouterController {
     }
     
     
-    @GetMapping
-    public ResponseEntity<PersonDTO> getPerson(long id){
+    @GetMapping("/person/{id}")
+    public ResponseEntity<PersonDTO> getPerson(@PathVariable long id){
     	PersonDTO personToReturn;
     	try {
     		personToReturn = peopleService.getPerson(id);

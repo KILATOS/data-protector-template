@@ -45,8 +45,10 @@ public class PeopleService {
 		EncryptedPerson person = encryptedPeopleRepository.findById(id).orElseThrow(
 				() -> new NoSuchPersonException(String.format("Person with id %d not found", id))
 		);
-		Optional<PersonDTO> personToReturn = messageDecoder.decode(person);
-		if (!personToReturn.isPresent()) {
+		Optional<PersonDTO> personToReturn;
+		try {
+			personToReturn = messageDecoder.decode(person);
+		} catch (RuntimeException e) {
 			throw new IntegrityViolationOfDataException(String.format("Person with id %d has data violation", id));
 		}
 		
