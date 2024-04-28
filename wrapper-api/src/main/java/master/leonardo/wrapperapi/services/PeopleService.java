@@ -1,5 +1,7 @@
 package master.leonardo.wrapperapi.services;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.logging.LogFactory;
@@ -53,6 +55,22 @@ public class PeopleService {
 		}
 		
         return personToReturn.get();
+	}
+	
+	public List<PersonDTO> getPeople() {
+		List<EncryptedPerson> people = encryptedPeopleRepository.findAll();
+		List<PersonDTO> peopleToReturn = new ArrayList<PersonDTO>();
+        for (EncryptedPerson person : people) {
+        	try {
+        		Optional<PersonDTO> curPerson = messageDecoder.decode(person);
+        		if (curPerson.isPresent()) {
+        			peopleToReturn.add(curPerson.get());
+        		}
+        	} catch (RuntimeException e) {
+        		logger.error(String.format("Person with id %d has data violation", person.getId()));
+        	}
+        }
+        return peopleToReturn;
 	}
 
 }
