@@ -1,0 +1,90 @@
+---
+version: '3'
+services:
+  ## PostgreSQL Users Docker Compose Config
+  postgres-users:
+    container_name: postgres-users
+    image: postgres
+    environment:
+      POSTGRES_DB: data-protector-template-users-db
+      POSTGRES_USER: data-protector-template-app
+      POSTGRES_PASSWORD: qwerty007
+      PGDATA: /data/postgres
+    volumes:
+      - ./postgres-users:/data/postgres
+    expose:
+      - "5431"
+    ports:
+      - "5431:5431"
+    command: -p 5431
+    restart: unless-stopped
+
+  ## PostgreSQL People Docker Compose Config
+  postgres-people:
+    container_name: postgres-people
+    image: postgres
+    environment:
+      POSTGRES_DB: data-protector-template-people-db
+      POSTGRES_USER: data-protector-template-app
+      POSTGRES_PASSWORD: qwerty007
+      PGDATA: /data/postgres
+    volumes:
+      - ./postgres-inventory:/data/postgres
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+
+  ## Eureka Server
+  discovery-server:
+    build: ./eureka-server
+    container_name: discovery-server
+    pull_policy: always
+    ports:
+      - "10000:10000"
+
+  config-server:
+    build: ./config-server
+    container_name: config-server
+    pull_policy: always
+    ports:
+      - "8083:8083"
+    depends_on:
+      - discovery-server
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    pull_policy: always
+    ports:
+      - "8082:8082"
+    expose:
+      - "8082"
+    depends_on:
+      - discovery-server
+      - config-server
+
+
+  ## Order-Service Docker Compose Config
+  users-api:
+    build: ./users-api
+    container_name: users-api
+    pull_policy: always
+    depends_on:
+      - api-gateway
+      - config-server
+      - discovery-server
+      - postgres-users
+
+
+  ## Inventory-Service Docker Compose Config
+  people-service:
+    build: ./wrapper-api
+    container_name: people-service
+    pull_policy: always
+    depends_on:
+      - api-gateway
+      - config-server
+      - discovery-server
+      - postgres-people
+

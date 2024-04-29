@@ -37,10 +37,9 @@ public class DataRouterController {
         this.peopleService = peopleService;
     }
     
-    @GetMapping
-    public List<PersonDTO> getPeople(){
-        //TODO
-        return null;
+    @GetMapping("/people")
+    public ResponseEntity<List<PersonDTO>> getPeople(){
+        return new ResponseEntity<>(peopleService.getPeople(), HttpStatus.OK);
     }
     
     @PostMapping("/person")

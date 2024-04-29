@@ -24,8 +24,11 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.cert.CertificateException;
@@ -37,8 +40,6 @@ import java.util.Base64;
  * 2) Next, we convert DTO object to string with toString
  * 3) Then, generate hash of gotten string
  * 4) Finally, encrypt latter hash with Cipher class
- * 
- *  
  */
 @Service
 public class MessageCoder implements AbstractCoder<PersonDTO>{
@@ -68,9 +69,17 @@ public class MessageCoder implements AbstractCoder<PersonDTO>{
         PrivateKey privateKey;
         
         try {
+            URL privateKeyUrl = MessageCoder.class
+                    .getClassLoader().getResource("sender_keystore.p12");
             keyStore= KeyStore.getInstance("PKCS12");
             char[] passwordToKeyFile = environment.getProperty("encryption.passwordToPrivateKeyFile").toCharArray();
-			keyStore.load(new FileInputStream("../wrapper-api/src/main/resources/sender_keystore.p12"), passwordToKeyFile);
+            File file = null;
+            try {
+                file = new File(privateKeyUrl.toURI());
+            } catch (URISyntaxException e) {
+                file = new File(privateKeyUrl.getPath());
+            }
+			keyStore.load(new FileInputStream(file), passwordToKeyFile);
             privateKey =
                     (PrivateKey) keyStore.getKey("senderKeyPair", passwordToKeyFile);
         } catch (IOException | NoSuchAlgorithmException | CertificateException | KeyStoreException |

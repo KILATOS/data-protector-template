@@ -18,8 +18,10 @@ import master.leonardo.wrapperapi.models.EncryptedPerson;
 import master.leonardo.wrapperapi.services.MessageCoder;
 import master.leonardo.wrapperapi.services.MessageDecoder;
 import master.leonardo.wrapperapi.services.PeopleService;
+import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
+@ActiveProfiles("test")
 class WrapperApiApplicationTests {
 	
 	private final MessageCoder coder;

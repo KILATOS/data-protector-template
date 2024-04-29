@@ -1,7 +1,10 @@
 package master.leonardo.wrapperapi.services;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.security.InvalidKeyException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -58,6 +61,14 @@ public class MessageDecoder implements AbstractDecoder<EncryptedPerson> {
 		//getting public key
 		KeyStore keyStore = null;
 		char[] passwordToKeyFile = environment.getProperty("encryption.passwordToPrivateKeyFile").toCharArray();
+		URL privateKeyUrl = MessageCoder.class
+				.getClassLoader().getResource("receiver_keystore.p12");
+		File file = null;
+		try {
+			file = new File(privateKeyUrl.toURI());
+		} catch (URISyntaxException e) {
+			file = new File(privateKeyUrl.getPath());
+		}
 		try {
 			keyStore = KeyStore.getInstance("PKCS12");
 		} catch (KeyStoreException e) {
@@ -65,7 +76,7 @@ public class MessageDecoder implements AbstractDecoder<EncryptedPerson> {
 			throw new RuntimeException(e);
 		}
 		try {
-			keyStore.load(new FileInputStream("../wrapper-api/src/main/resources/receiver_keystore.p12"), passwordToKeyFile);
+			keyStore.load(new FileInputStream(file), passwordToKeyFile);
 		} catch (NoSuchAlgorithmException | CertificateException | IOException e) {
 			logger.error(e.getMessage());
 			throw new RuntimeException(e);

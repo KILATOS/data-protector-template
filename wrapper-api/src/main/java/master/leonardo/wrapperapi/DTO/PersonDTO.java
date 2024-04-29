@@ -22,7 +22,7 @@ public class PersonDTO {
     private String country;
 	
 	@NotBlank(message = "gender should not be blank")
-	@Pattern(regexp = "[Male|Female]{1}", message = "gender should contains only Male or Female")
+	//@Pattern(regexp = "[Male|Female]{1}", message = "gender should contains only Male or Female") TODO
     private String gender;
 	
 	@Min(value = 0, message = "age should be greater than 0")
