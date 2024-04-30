@@ -12,7 +12,7 @@
                 <pattern>
                     <pattern>
                         {
-                        "app": "users-api"
+                        "app": "wrapper-api"
                         }
                     </pattern>
                 </pattern>
