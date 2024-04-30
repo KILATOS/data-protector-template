@@ -70,11 +70,13 @@ public class UsersController {
             throw new UserNotValidException();
         }
         User user = usersService.saveUser(usersService.castDTOtoModel(userDTO));
+        log.info("added user " + userDTO);
         return new ResponseEntity<>(usersService.castModelToDTO(user),HttpStatus.CREATED);
     }
 
     @ExceptionHandler
     private ResponseEntity<HttpStatus> handleUserNotValidException(UserNotValidException e){
+        log.error(e.getMessage());
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 }
