@@ -47,7 +47,7 @@ public class UsersController {
                     description = "Service isn`t started") })
     @GetMapping("/test")
     public String test(){
-        log.info("test from " + environment.getProperty("local.server.port"));
+        log.warn("test from " + environment.getProperty("local.server.port"));
         return "test from " + environment.getProperty("local.server.port");
     }
 
