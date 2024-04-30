@@ -1,5 +1,6 @@
 package master.leonardo.wrapperapi.controllers;
 
+import lombok.extern.slf4j.Slf4j;
 import master.leonardo.wrapperapi.DTO.PersonDTO;
 import master.leonardo.wrapperapi.exceptions.IntegrityViolationOfDataException;
 import master.leonardo.wrapperapi.exceptions.NoSuchPersonException;
@@ -28,6 +29,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
+@Slf4j
 public class DataRouterController {
 
     private final PeopleService peopleService;
@@ -39,6 +41,7 @@ public class DataRouterController {
     
     @GetMapping("/people")
     public ResponseEntity<List<PersonDTO>> getPeople(){
+        log.info("inside getPeople");
         return new ResponseEntity<>(peopleService.getPeople(), HttpStatus.OK);
     }
     
@@ -58,6 +61,7 @@ public class DataRouterController {
     	} catch (RuntimeException e) {
     		throw new PersonSaveProcessingException(e.getCause().getMessage());
     	}
+        log.info("person added");
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
     /**
@@ -67,6 +71,7 @@ public class DataRouterController {
      */
     @ExceptionHandler
     private ResponseEntity<PersonNotValidResponse> handleUserNotValidException(PersonNotValidException e){
+        log.error(e.getMessage());
     	return new ResponseEntity<>(new PersonNotValidResponse(e.getMessage()),HttpStatus.BAD_REQUEST);
     }
     
@@ -77,6 +82,7 @@ public class DataRouterController {
      */
     @ExceptionHandler
     private ResponseEntity<PersonSaveProcessingResponse> handlePersonSaveProcessingException(PersonSaveProcessingException e){
+        log.error(e.getMessage());
         return new ResponseEntity<>(new PersonSaveProcessingResponse(e.getMessage()),HttpStatus.INTERNAL_SERVER_ERROR);
     }
     
@@ -100,6 +106,7 @@ public class DataRouterController {
      */
     @ExceptionHandler
     private ResponseEntity<NoSuchPersonResponse> handleNoSuchPersonException(NoSuchPersonException e){
+        log.error(e.getMessage());
         return new ResponseEntity<>(new NoSuchPersonResponse(e.getMessage()),HttpStatus.NOT_FOUND);
     }
     /**
@@ -109,6 +116,7 @@ public class DataRouterController {
      */
     @ExceptionHandler
     private ResponseEntity<IntegrityViolationOfDataResponse> handleIntegrityViolationOfDataException(IntegrityViolationOfDataException e){
+        log.error(e.getMessage());
         return new ResponseEntity<>(new IntegrityViolationOfDataResponse(e.getMessage()),HttpStatus.CONFLICT);
     }
     

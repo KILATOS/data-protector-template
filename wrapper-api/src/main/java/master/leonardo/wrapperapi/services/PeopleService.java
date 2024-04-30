@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.logging.LogFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,8 +19,8 @@ import master.leonardo.wrapperapi.exceptions.IntegrityViolationOfDataException;
 import master.leonardo.wrapperapi.exceptions.NoSuchPersonException;
 
 @Service
+@Slf4j
 public class PeopleService {
-	private static final Logger logger = LogManager.getLogger(PeopleService.class);
 	private final MessageCoder messageCoder;
 	private final MessageDecoder messageDecoder;
 	private final EncryptedPeopleRepository encryptedPeopleRepository;
@@ -38,7 +39,7 @@ public class PeopleService {
 			personToAdd = messageCoder.code(person);
 			encryptedPeopleRepository.save(personToAdd);
 		} catch (RuntimeException e) {
-			logger.error(e.getCause().getMessage());
+			log.error(e.getCause().getMessage());
 			throw e;
 		}	
 	}
@@ -67,7 +68,7 @@ public class PeopleService {
         			peopleToReturn.add(curPerson.get());
         		}
         	} catch (RuntimeException e) {
-        		logger.error(String.format("Person with id %d has data violation", person.getId()));
+        		log.error(String.format("Person with id %d has data violation", person.getId()));
         	}
         }
         return peopleToReturn;

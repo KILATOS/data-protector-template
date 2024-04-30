@@ -18,6 +18,8 @@ services:
       - "5431:5431"
     command: -p 5431
     restart: unless-stopped
+    networks:
+      - local
 
   ## PostgreSQL People Docker Compose Config
   postgres-people:
@@ -33,6 +35,8 @@ services:
     ports:
       - "5432:5432"
     restart: unless-stopped
+    networks:
+      - local
 
 
   ## Eureka Server
@@ -42,6 +46,8 @@ services:
     pull_policy: always
     ports:
       - "10000:10000"
+    networks:
+      - local
 
   config-server:
     build: ./config-server
@@ -51,6 +57,8 @@ services:
       - "8083:8083"
     depends_on:
       - discovery-server
+    networks:
+      - local
 
   api-gateway:
     build: ./api-gateway
@@ -63,6 +71,8 @@ services:
     depends_on:
       - discovery-server
       - config-server
+    networks:
+      - local
 
 
   ## Order-Service Docker Compose Config
@@ -75,6 +85,8 @@ services:
       - config-server
       - discovery-server
       - postgres-users
+    networks:
+      - local
 
 
   ## Inventory-Service Docker Compose Config
@@ -87,4 +99,73 @@ services:
       - config-server
       - discovery-server
       - postgres-people
+    networks:
+      - local
+  elasticsearch:
+    image: elasticsearch:8.3.3
+    container_name: elasticsearch_springboot
 
+    environment:
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "discovery.type=single-node"
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+
+    depends_on:
+      - discovery-server
+      - api-gateway
+      - users-api
+      - people-service
+    networks:
+      - local
+
+  kibana:
+    image: kibana:8.3.3
+    container_name: kibana_springboot
+    ports:
+      - "5601:5601"
+    environment:
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      ELASTICSEARCH_HOSTS: '["http://elasticsearch:9200"]'
+    depends_on:
+      - discovery-server
+      - api-gateway
+      - users-api
+      - people-service
+    networks:
+      - local
+
+
+
+
+  logstash:
+    image: logstash:8.3.3
+    container_name: logstash_springboot
+    volumes:
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
+    ports:
+      - "5044:5044"
+      - "5000:5000/tcp"
+      - "5000:5000/udp"
+      - "9600:9600"
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+
+    depends_on:
+      - discovery-server
+      - api-gateway
+      - users-api
+      - people-service
+    networks:
+      - local
+networks:
+  local:
+    driver: bridge
+
+volumes:
+  elasticsearch_data:
+    driver: local

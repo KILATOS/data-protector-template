@@ -11,16 +11,6 @@ java {
     sourceCompatibility = JavaVersion.VERSION_17
 }
 
-configurations {
-    compileOnly {
-        extendsFrom(configurations.annotationProcessor.get())
-    }
-    all{
-        exclude(module  = "spring-boot-starter-logging")
-    }
-
-}
-
 
 repositories {
     mavenCentral()
@@ -29,10 +19,8 @@ repositories {
 extra["springCloudVersion"] = "2023.0.0"
 
 dependencies {
-    //log4j
-
-    implementation("org.springframework.boot:spring-boot-starter-log4j2:3.2.0")
-
+    //logstash
+    implementation("net.logstash.logback:logstash-logback-encoder:7.4")
     //swagger
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0")
     //jwt
@@ -45,9 +33,7 @@ dependencies {
     implementation("com.h2database:h2:2.2.224")
     //for web
     implementation("org.springframework.boot:spring-boot-starter-data-jpa:3.2.3")
-    implementation("org.springframework.boot:spring-boot-starter-web"){
-        exclude(group = "org.springframework.boot", module = "spring-boot-starter-logging")
-    }
+    implementation("org.springframework.boot:spring-boot-starter-web")
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
     //for microservices

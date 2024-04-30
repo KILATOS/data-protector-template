@@ -2,6 +2,7 @@ package master.leonardo.wrapperapi.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import master.leonardo.wrapperapi.DTO.PersonDTO;
 import master.leonardo.wrapperapi.models.EncryptedPerson;
 import master.leonardo.wrapperapi.models.EncryptedPersonBuilder;
@@ -42,11 +43,11 @@ import java.util.Base64;
  * 4) Finally, encrypt latter hash with Cipher class
  */
 @Service
+@Slf4j
 public class MessageCoder implements AbstractCoder<PersonDTO>{
 	/**
 	 * Just logger
 	 */
-    private static final Logger logger = LogManager.getLogger(MessageCoder.class);
     private final Environment environment;
     
     @Autowired
@@ -84,6 +85,7 @@ public class MessageCoder implements AbstractCoder<PersonDTO>{
                     (PrivateKey) keyStore.getKey("senderKeyPair", passwordToKeyFile);
         } catch (IOException | NoSuchAlgorithmException | CertificateException | KeyStoreException |
                  UnrecoverableKeyException e) {
+            log.error(e.getMessage());
             throw new RuntimeException(e);
         }
 
@@ -96,7 +98,7 @@ public class MessageCoder implements AbstractCoder<PersonDTO>{
         try {
             md = MessageDigest.getInstance("SHA-256");
         } catch (NoSuchAlgorithmException e) {
-            logger.error(e.getMessage());
+            log.error(e.getMessage());
             throw new RuntimeException(e);
         }
         byte[] messageHash = md.digest(stringToEncrypt.getBytes());
@@ -107,19 +109,19 @@ public class MessageCoder implements AbstractCoder<PersonDTO>{
 		try {
 			cipher = Cipher.getInstance("RSA");
 		} catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
-			logger.error(e.getMessage());
+			log.error(e.getMessage());
 			throw new RuntimeException(e);
 		} 
         try {
 			cipher.init(Cipher.ENCRYPT_MODE, privateKey);
 		} catch (InvalidKeyException e) {
-			logger.error(e.getMessage());
+			log.error(e.getMessage());
 			throw new RuntimeException(e);
 		}
         try {
         	digitalSignature = cipher.doFinal(messageHash);
 		} catch (IllegalBlockSizeException | BadPaddingException e) {
-			logger.error(e.getMessage());
+			log.error(e.getMessage());
 			throw new RuntimeException(e);
 		}
         

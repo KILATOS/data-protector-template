@@ -22,6 +22,7 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
+import lombok.extern.slf4j.Slf4j;
 import master.leonardo.wrapperapi.DTO.PersonDTO;
 import master.leonardo.wrapperapi.DTO.PersonDTOBuilder;
 import master.leonardo.wrapperapi.models.EncryptedPerson;
@@ -39,8 +40,8 @@ import org.springframework.stereotype.Service;
  * Also it is responsible for validating the signature of the encrypted person.
  */
 @Service
+@Slf4j
 public class MessageDecoder implements AbstractDecoder<EncryptedPerson> {
-	private static final Logger logger = LogManager.getLogger(MessageCoder.class);
 	private final Environment environment;
 	
     @Autowired
@@ -72,13 +73,13 @@ public class MessageDecoder implements AbstractDecoder<EncryptedPerson> {
 		try {
 			keyStore = KeyStore.getInstance("PKCS12");
 		} catch (KeyStoreException e) {
-			logger.error(e.getMessage());
+			log.error(e.getMessage());
 			throw new RuntimeException(e);
 		}
 		try {
 			keyStore.load(new FileInputStream(file), passwordToKeyFile);
 		} catch (NoSuchAlgorithmException | CertificateException | IOException e) {
-			logger.error(e.getMessage());
+			log.error(e.getMessage());
 			throw new RuntimeException(e);
 		}
 		Certificate certificate = null;
@@ -86,7 +87,7 @@ public class MessageDecoder implements AbstractDecoder<EncryptedPerson> {
 			certificate = keyStore.getCertificate("receiverKeyPair");
 			
 		} catch (KeyStoreException e) {
-			logger.error(e.getMessage());
+			log.error(e.getMessage());
 			throw new RuntimeException(e);
 		}
 		PublicKey publicKey = certificate.getPublicKey();
@@ -99,20 +100,20 @@ public class MessageDecoder implements AbstractDecoder<EncryptedPerson> {
 		try {
 			cipher = Cipher.getInstance("RSA");
 		} catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
-			logger.error(e.getMessage());
+			log.error(e.getMessage());
 			throw new RuntimeException(e);
 		}
 		try {
 			cipher.init(Cipher.DECRYPT_MODE, publicKey);
 		} catch (InvalidKeyException e) {
-			logger.error(e.getMessage());
+			log.error(e.getMessage());
 			throw new RuntimeException(e);
 		}
 		byte[] decryptedMessageHash = null;
 		try {
 			decryptedMessageHash = cipher.doFinal(encryptedMessageHash);
 		} catch (IllegalBlockSizeException | BadPaddingException e) {
-			logger.error(e.getMessage());
+			log.error(e.getMessage());
 			throw new RuntimeException(e);
 		}
 		String stringToDecrypt = encryptedPerson.toString();
@@ -121,7 +122,7 @@ public class MessageDecoder implements AbstractDecoder<EncryptedPerson> {
         try {
             md = MessageDigest.getInstance("SHA-256");
         } catch (NoSuchAlgorithmException e) {
-            logger.error(e.getMessage());
+            log.error(e.getMessage());
             throw new RuntimeException(e);
         }
         byte[] messageHash = md.digest(stringToDecrypt.getBytes());
@@ -144,7 +145,7 @@ public class MessageDecoder implements AbstractDecoder<EncryptedPerson> {
         	.build();
         	
         } else {
-        	logger.error("Signature is not correct!" + encryptedPerson.toString());
+        	log.error("Signature is not correct!" + encryptedPerson.toString());
         }
         return Optional.of(personToReturn);
 		
