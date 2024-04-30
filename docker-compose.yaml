@@ -99,6 +99,7 @@ services:
       - config-server
       - discovery-server
       - postgres-people
+      - elasticsearch
     networks:
       - local
   elasticsearch:
@@ -116,9 +117,7 @@ services:
 
     depends_on:
       - discovery-server
-      - api-gateway
-      - users-api
-      - people-service
+
     networks:
       - local
 
